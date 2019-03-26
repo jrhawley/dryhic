@@ -39,7 +39,7 @@ get_contacts_matrix <- function(inbam, resolution, pos, region = NULL,
           "-w", resolution,
           inbam,
           region) %>%
-        fread(input = ., header = FALSE) %>%
+        fread(., header = FALSE) %>%
         mutate(b1 = factor(paste(V1, V2, sep = ":"), levels = pos),
                b2 = factor(paste(V3, V4, sep = ":"), levels = pos)) %>%
         xtabs(V5 ~ b1 + b2, ., sparse = T)
