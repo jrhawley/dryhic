@@ -4,15 +4,18 @@
 \alias{plot_matrix}
 \title{Plot HiC contact matrix}
 \usage{
-plot_matrix(mat, coord, resolution, transformation = logfinite,
-  color = colorRampPalette(c("white", "red"))(100), sym = FALSE,
-  trim = 0.01, rotate = FALSE, unit_x_axis = 1e+06,
-  label_x_axis = "Genomic Position / Mbp", na.col = "white", ...)
+plot_matrix(mat, coord, tads = NULL, resolution,
+  transformation = logfinite, color = colorRampPalette(c("white",
+  "red"))(100), sym = FALSE, trim = 0.01, rotate = FALSE,
+  unit_x_axis = 1e+06, label_x_axis = "Genomic Position / Mbp",
+  na.col = "white", ...)
 }
 \arguments{
 \item{mat}{HiC contact matrix (it could be the output of \code{\link{get_contacts_matrix}})}
 
 \item{coord}{A vector of size two with the start and end coordinates of the desired region to plot}
+
+\item{tads}{A data.frame where each row is a TAD, the columns are from.id and to.id}
 
 \item{resolution}{Resolution (bin size) in bp}
 
