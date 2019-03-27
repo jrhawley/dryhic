@@ -5,6 +5,7 @@
 #' @import Matrix
 #' @param mat HiC contact matrix (it could be the output of \code{\link{get_contacts_matrix}})
 #' @param coord A vector of size two with the start and end coordinates of the desired region to plot
+#' @param tads A data.frame where each row is a TAD, the columns are from.id and to.id
 #' @param resolution Resolution (bin size) in bp
 #' @param transformation Transformation to apply to the contacts prior to the heatmap representation
 #' @param color Vector of colors
@@ -19,7 +20,7 @@
 #' @examples
 #' plot(0)
 
-plot_matrix <- function(mat, coord, resolution,
+plot_matrix <- function(mat, coord, tads = NULL, resolution,
                         transformation = logfinite,
                         color = colorRampPalette(c("white", "red"))(100),
                         sym = FALSE, trim = .01, rotate = FALSE,
@@ -87,8 +88,11 @@ plot_matrix <- function(mat, coord, resolution,
     if(max(x, na.rm = T) == min(x, na.rm = T)){
         x[] <- color[round(length(color) / 2)]
     }else{
-        x[] <- color[cut(c(x), seq(lower, upper,
-                                   len = length(color) + 1), include = T)]
+        x[] <- color[cut(
+                c(x),
+                seq(lower, upper, len = length(color) + 1),
+                include = T
+            )]
     }
 
     x[is.na(x)] <- na.col
@@ -119,6 +123,31 @@ plot_matrix <- function(mat, coord, resolution,
                 interpolate = FALSE)
     axis(1, at = guides_pos,
          labels = guides / unit_x_axis, cex.axis = 1.5)
+
+    # add TAD annotations
+
+    if (!is.null(tads)) {
+        # convert row and column indices to coordinates for mapping
+        tad_lines = rbindlist(apply(
+            tads,
+            1,
+            function(row) {
+                dt = data.table(
+                    x = c(row[1], row[1], row[2]),
+                    y = c(row[1], row[2], row[2])
+                )
+                if (!rotate) {
+                    # using nr - X since (0, 0) is the bottom left x coordinate
+                    # in the map, but the matrix is plotted with the 1st row/col
+                    # being in the top left
+                    dt[, y := nr - y]
+                }
+                return(dt)
+            }
+        ))
+
+        lines(x = tad_lines$x, y = tad_lines$y)
+    }
     
     invisible()
     
