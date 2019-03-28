@@ -42,12 +42,7 @@ requirements:
     - r-rspectra
   run:
     - r-base
-    - r-magrittr
-    - r-matrix
-    - r-mgcv
-    - r-dplyr
-    - r-data.table
-    - r-rspectra
+
 
 test:
   commands:
@@ -58,7 +53,7 @@ about:
   home: http://github.com/jrhawley/dryhic
   license: GPLv3
   license_family: GPL3
-  license_file: LICENSE
+  license_file: ../LICENSE
   summary: A set of tools to manipulate HiC data.
 
 extra:
