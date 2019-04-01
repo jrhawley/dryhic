@@ -85,9 +85,11 @@ plot_matrix <- function(mat, coord, tads = NULL, resolution,
 
     # transform scores into colors
 
-    if(max(x, na.rm = T) == min(x, na.rm = T)){
+    if (max(x, na.rm = T) == min(x, na.rm = T)) {
         x[] <- color[round(length(color) / 2)]
-    }else{
+    } else if (!is.finite(lower) || !is.finite(upper) || is.na(lower) || is.na(upper)) {
+        x[] <- color[round(length(color) / 2)]
+    } else {
         x[] <- color[cut(
                 c(x),
                 seq(lower, upper, len = length(color) + 1),
