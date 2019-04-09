@@ -13,11 +13,13 @@
 #' @param out_binSignal : string, binSignal file address to write
 #' @param out_ext : string, ext file address to write
 #' @export
-TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, outFile=NULL, statFilter=T)
+TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, outFile=NULL, statFilter=T, verbose = TRUE)
 {
-    cat("#########################################################################\n")
-    cat("Step 0 : Load Data\n")
-    cat("#########################################################################\n")
+    if (verbose) {
+        cat("#########################################################################\n")
+        cat("Step 0 : Load Data\n")
+        cat("#########################################################################\n")
+    }
     if ((is.null(matrix.data) || is.null(bins)) && is.null(matrix.file)) {
         stop("`matrix.data` and `bins`, or `matrix.file` must be defined.")
     } else if (!is.null(matrix.file)) {
@@ -46,12 +48,14 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     local.ext = rep(-0.5, n_bins)
     window.size = as.numeric(window.size)
 
-    cat("-- Done!\n")
-    cat("Step 0 : Done !!\n")
+    if (verbose) {
+        cat("-- Done!\n")
+        cat("Step 0 : Done !!\n")
 
-    cat("#########################################################################\n")
-    cat("Step 1 : Generating binSignals by computing bin-level contact frequencies\n")
-    cat("#########################################################################\n")
+        cat("#########################################################################\n")
+        cat("Step 1 : Generating binSignals by computing bin-level contact frequencies\n")
+        cat("#########################################################################\n")
+    }
     ptm <- proc.time()
     for(i in 1:n_bins)
     {
@@ -60,12 +64,14 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     }
     
     eltm = proc.time() - ptm
-    cat(paste("Step 1 Running Time : ", eltm[3]), "\n")
-    cat("Step 1 : Done !!\n")
-    
-    cat("#########################################################################\n")
-    cat("Step 2 : Detect TD boundaries based on binSignals\n")
-    cat("#########################################################################\n")
+    if (verbose) {
+        cat(paste("Step 1 Running Time : ", eltm[3]), "\n")
+        cat("Step 1 : Done !!\n")
+        
+        cat("#########################################################################\n")
+        cat("Step 2 : Detect TD boundaries based on binSignals\n")
+        cat("#########################################################################\n")
+    }
     
     ptm = proc.time()
     #gap.idx = Which.Gap.Region(matrix.data=matrix.data)
@@ -79,23 +85,27 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
         start = proc.regions[i, "start"]
         end = proc.regions[i, "end"]
         
-        cat(paste("Process Regions from ", start, "to", end), "\n")
+        if (verbose) cat(paste("Process Regions from ", start, "to", end), "\n")
             
         local.ext[start:end] = Detect.Local.Extreme(x=mean.cf[start:end])
     }
     
     eltm = proc.time() - ptm
-    cat(paste("Step 2 Running Time : ", eltm[3]), "\n")
-    cat("Step 2 : Done !!\n")
-    
+    if (verbose) {
+        cat(paste("Step 2 Running Time : ", eltm[3]), "\n")
+        cat("Step 2 : Done !!\n")
+        
+    }
     if(statFilter)
     {
-        cat("#########################################################################\n")
-        cat("Step 3 : Statistical Filtering of false positive TD boundaries\n")
-        cat("#########################################################################\n")
+        if (verbose) {
+            cat("#########################################################################\n")
+            cat("Step 3 : Statistical Filtering of false positive TD boundaries\n")
+            cat("#########################################################################\n")
+            cat("-- Matrix Scaling....\n")
+        }
     
         ptm = proc.time()    
-        cat("-- Matrix Scaling....\n")
         scale.matrix.data = matrix.data
         for( i in 1:(2*window.size) )
         {
@@ -103,27 +113,31 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
             scale.matrix.data[ seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins) ] = scale( matrix.data[ seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins) ] )
         }
         
-        cat("-- Compute p-values by Wilcox Ranksum Test\n")
+        if (verbose) cat("-- Compute p-values by Wilcox Ranksum Test\n")
         for( i in 1:nrow(proc.regions))
         {
             start = proc.regions[i, "start"]
             end = proc.regions[i, "end"]
             
-            cat(paste("Process Regions from ", start, "to", end), "\n")
+            if (verbose) cat(paste("Process Regions from ", start, "to", end), "\n")
             
             pvalue[start:end] <- Get.Pvalue(matrix.data=scale.matrix.data[start:end, start:end], size=window.size, scale=1)
         }
-        cat("-- Done!\n")
+        if (verbose) {
+            cat("-- Done!\n")
+            cat("-- Filtering False Positives\n")
+        }
         
-        cat("-- Filtering False Positives\n")
         local.ext[intersect( union(which( local.ext==-1), which(local.ext==-1)), which(pvalue<0.05))] = -2
         local.ext[which(local.ext==-1)] = 0
         local.ext[which(local.ext==-2)] = -1
-        cat("-- Done!\n")
+        if (verbose) cat("-- Done!\n")
         
         eltm = proc.time() - ptm
-        cat(paste("Step 3 Running Time : ", eltm[3]), "\n")
-        cat("Step 3 : Done!\n")
+        if (verbose) {
+            cat(paste("Step 3 Running Time : ", eltm[3]), "\n")
+            cat("Step 3 : Done!\n")
+        }
     } else pvalue = 0
 
     domains = Convert.Bin.To.Domain.TMP(
@@ -145,27 +159,31 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     colnames(bedform) = c("chrom", "chromStart", "chromEnd", "name")
     
     if( !is.null(outFile) ) {
-        cat("#########################################################################\n")
-        cat("Writing Files\n")
-        cat("#########################################################################\n")
-        
+        if (verbose) {
+            cat("#########################################################################\n")
+            cat("Writing Files\n")
+            cat("#########################################################################\n")
+        }
+        # output files
         outBinSignal =    paste(outFile, ".binSignal", sep="")
-        cat(paste("binSignal File :", outBinSignal) )
-        write.table(bins, file=outBinSignal, quote=F, row.names=F, col.names=T, sep="\t")    
-    
-    
         outDomain = paste(outFile, ".domain", sep="")
-        cat(paste("Domain File :", outDomain) )
-        write.table( domains, file=outDomain, quote=F, row.names=F, col.names=T, sep="\t")
-        
         outBed = paste(outFile, ".bed", sep="")
-        cat(paste("Bed File : ", outBed))
+        if (verbose) {
+            cat(paste("binSignal File :", outBinSignal) )
+            cat(paste("Domain File :", outDomain) )
+            cat(paste("Bed File : ", outBed))
+        }
+        # save files
+        write.table(bins, file=outBinSignal, quote=F, row.names=F, col.names=T, sep="\t")
+        write.table( domains, file=outDomain, quote=F, row.names=F, col.names=T, sep="\t")
         write.table( bedform, file=outBed, quote=F, row.names=F, col.names=F, sep="\t")
     }
     
-    cat("Done!!\n")
+    if (verbose) {
+        cat("Done!!\n")
+        cat("Job Complete !\n")
+    }
     
-    cat("Job Complete !\n")
     return(list(binSignal=bins, domain=domains, bed=bedform))
 }
 
