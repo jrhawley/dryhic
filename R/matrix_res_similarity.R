@@ -4,7 +4,7 @@
 #' @param m integer
 #' @return integer
 gcd = function(n, m) {
-    ifelse (b == 0, a, gcd(b, a %% b))
+    ifelse (m == 0, n, gcd(m, n %% m))
 }
 
 
