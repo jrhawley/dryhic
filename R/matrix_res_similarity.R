@@ -20,9 +20,7 @@ gcd = function(n, m) {
 matrix_res_similarity = function(mtx1, mtx2, res1, res2, method = "F") {
     # calculate lowest common multiple resolution
     lcm_res = res1 * res2 / gcd(res1, res2)
-    mtx1_scaled = reduce_resolution(mtx1, lcm_res)
-    mtx2_scaled = reduce_resolution(mtx2, lcm_res)
-
+    mtx1_scaled = reduce_resolution(mtx1, newreso = lcm_res, oldreso = res1)
+    mtx2_scaled = reduce_resolution(mtx2, newreso = lcm_res, oldreso = res2)
     return(norm(mtx1_scaled - mtx2_scaled, type = method))
 }
-

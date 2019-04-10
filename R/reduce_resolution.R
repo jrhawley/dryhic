@@ -33,7 +33,9 @@ reduce_resolution <- function(mat, newreso, oldreso = NA){
     }
 
     # don't adjust if resolutions are the same
-    if(oldreso == newreso) return(mat)
+    if(oldreso == newreso) {
+        return(mat)
+    }
 
     # stop if new resolution is not a multiple of old resolution
     if((newreso %% oldreso) != 0) stop("New resolution should be multiple of the original one")
@@ -57,7 +59,7 @@ reduce_resolution <- function(mat, newreso, oldreso = NA){
 
     # sum read counts in old bins into new bins
     #   dim(newmat) = c(# of new bins, # of new bins)
-    newmat <- m %*% (mat %*% t(m))
+    newmat <- as(m %*% (mat %*% t(m)), "dgTMatrix")
 
     # find new bins with the same label as old bins
     bins <- rownames(mat)[rownames(mat) %in% rownames(newmat)]
