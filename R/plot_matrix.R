@@ -1,3 +1,5 @@
+solar_rojos = c('#FCFCFC', '#FFEDB0', '#FFDF5F', '#FEC510', '#FA8E24', '#F14C2B', '#DA2828', '#BE2222', '#A31D1D')
+
 #' Plot HiC contact matrix
 #'
 #' This function takes a HiC contact matrix and creates heatmap-like prepresentation of it
@@ -22,7 +24,7 @@
 
 plot_matrix <- function(mat, coord, tads = NULL, resolution,
                         transformation = logfinite,
-                        color = colorRampPalette(c("white", "red"))(100),
+                        color = colorRampPalette(solar_rojos)(100),
                         sym = FALSE, trim = .01, rotate = FALSE,
                         unit_x_axis = 1e6,
                         label_x_axis = "Genomic Position / Mbp",
