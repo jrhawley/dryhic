@@ -19,8 +19,15 @@ gcd = function(n, m) {
 #' @return 
 matrix_res_similarity = function(mtx1, mtx2, res1, res2, method = "F") {
     # calculate lowest common multiple resolution
-    lcm_res = res1 * res2 / gcd(res1, res2)
+    lcm_res = as.integer(res1 * res2 / gcd(res1, res2))
     mtx1_scaled = reduce_resolution(mtx1, newreso = lcm_res, oldreso = res1)
     mtx2_scaled = reduce_resolution(mtx2, newreso = lcm_res, oldreso = res2)
+    '%ni%' = Negate("%in%")
+    if (dim(mtx1_scaled) != dim(mtx2_scaled)) {
+        cat("mtx1 bins not in mtx2:\n")
+        print(rownames(mtx1_scaled)[rownames(mtx1_scaled) %ni% rownames(mtx2_scaled)])
+        cat("mtx2 bins not in mtx1:\n")
+        print(rownames(mtx2_scaled)[rownames(mtx2_scaled) %ni% rownames(mtx1_scaled)])
+    }
     return(norm(mtx1_scaled - mtx2_scaled, type = method))
 }
