@@ -24,13 +24,6 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}        # [not win]
-    - {{native}}toolchain        # [win]
-    # - {{posix}}filesystem        # [win]
-    # - {{posix}}make
-    # - {{posix}}sed               # [win]
-    # - {{posix}}coreutils         # [win]
-    # - {{posix}}zip               # [win]
-    # - llvm-openmp                # [osx]
 
   host:
     - r-base
@@ -53,7 +46,7 @@ about:
   home: http://github.com/jrhawley/dryhic
   license: GPLv3
   license_family: GPL3
-  license_file: ../LICENSE
+  license_file: LICENSE
   summary: A set of tools to manipulate HiC data.
 
 extra:
