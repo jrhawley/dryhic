@@ -5,6 +5,7 @@
 #' @import Matrix
 #' @param mat HiC contact map matrix
 #' @param newreso Desired bin size in bp
+#' @param oldreso Current bin size in bp
 #' @return A HiC contact matrix with the desired resolution
 #' @export
 #' @examples

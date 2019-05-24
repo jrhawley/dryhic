@@ -3,7 +3,7 @@
 #' @brief : TopDom.R is a software package to identify topological domains for given Hi-C contact matrix. 
 #' @version 0.0.2
 
-#' @fn TopDom
+#' TopDom
 #' @param matrix.data : matrix object, skip reading file,
 #' @param bins : data.frame containing coordinate information for the bins the matrix represents,
 #' @param matrixFile : string, matrixFile Address,
@@ -187,11 +187,11 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     return(list(binSignal=bins, domain=domains, bed=bedform))
 }
 
-#' @fn Get.Diamond.Matrix
+#' Get.Diamond.Matrix
 #' @param mat.data : N by N matrix, where each element indicate contact frequency
 #' @param i :integer, bin index
 #' @param size : integer, window size to expand from bin
-#' @retrun : matrix.
+#' @return : matrix.
 Get.Diamond.Matrix <- function(mat.data, i, size)
 {
     n_bins = nrow( mat.data )
@@ -203,11 +203,11 @@ Get.Diamond.Matrix <- function(mat.data, i, size)
     return( mat.data[lowerbound:i, (i+1):upperbound] )
 }
 
-#' @fn Which.process.region
+#' Which.process.region
 #' @param rmv.idx : vector of idx, remove index vector
 #' @param n_bins : total number of bins
 #' @param min.size : minimum size of bins
-#' @retrun : data.frame of proc.regions
+#' @return : data.frame of proc.regions
 Which.process.region <- function(rmv.idx, n_bins, min.size=3)
 {
     gap.idx = rmv.idx
@@ -244,7 +244,7 @@ Which.process.region <- function(rmv.idx, n_bins, min.size=3)
     return(proc.regions)
 }
 
-#' @fn Which.Gap.Region
+#' Which.Gap.Region
 #' @breif version 0.0.1 used
 #' @param matrix.data : n by n matrix
 #' @return gap index
@@ -274,7 +274,7 @@ Which.Gap.Region <- function(matrix.data)
     return(idx)
 }
 
-#' @fn Which.Gap.Region3
+#' Which.Gap.Region3
 #' @param matrix.data : n by n matrix
 #' @return gap index
 Which.Gap.Region3 <- function(mean.cf)
@@ -285,7 +285,7 @@ Which.Gap.Region3 <- function(mean.cf)
     return(gapidx)
 }
 
-#' @fn Which.Gap.Region2
+#' Which.Gap.Region2
 #' @breif version 0.0.2 used
 #' @param matrix.data : n by n matrix
 #' @return gap index
@@ -303,7 +303,7 @@ Which.Gap.Region2 <- function(matrix.data, w)
     return(idx)
 }
 
-#' @fn Detect.Local.Extreme
+#' Detect.Local.Extreme
 #' @param x : original signal to find local minima
 #' @return vector of local extrme, -1 if the index is local minimum, 1 if the index is local maxima, 0 otherwise.
 Detect.Local.Extreme <- function(x)
@@ -342,7 +342,7 @@ Detect.Local.Extreme <- function(x)
     return(ret)
 }
 
-#' @fn Data.Norm
+#' Data.Norm
 #' @param x : x axis vector
 #' @param x : y axis vector
 #' @return list of normalized x and y
@@ -372,7 +372,7 @@ Data.Norm <- function(x, y)
     return(list(x=ret.x, y=ret.y))
 }
 
-#' @fn Change.Point
+#' Change.Point
 #' @param x : x axis vector
 #' @param x : y axis vector
 #' @return change point index in x vector,
@@ -426,7 +426,7 @@ Change.Point <- function( x, y )
     return(list(cp=cp, objF=Fv, errF=Ev))
 }
 
-#' @fn Get.Pvalue
+#' Get.Pvalue
 #' @param matrix.data : matrix
 #' @param size : size to extend
 #' @param scale : scale parameter if necessary. deprecated parameter
@@ -452,7 +452,7 @@ Get.Pvalue <- function( matrix.data, size, scale=1 )
     return(pvalue)
 }
 
-#' @fn Get.Upstream.Triangle
+#' Get.Upstream.Triangle
 #' @param mat.data : matrix data
 #' @param i : bin index
 #' @param size : size of window to extend
@@ -466,7 +466,7 @@ Get.Upstream.Triangle <- function(mat.data, i, size)
     return( tmp.mat[ upper.tri( tmp.mat, diag=F ) ] )
 }
 
-#' @fn Get.Downstream.Triangle
+#' Get.Downstream.Triangle
 #' @param mat.data : matrix data
 #' @param i : bin index
 #' @param size : size of window to extend
@@ -481,7 +481,7 @@ Get.Downstream.Triangle <- function(mat.data, i, size)
     return( tmp.mat[ upper.tri( tmp.mat, diag=F ) ] )
 }
 
-#' @fn Get.Diamond.Matrix2
+#' Get.Diamond.Matrix2
 #' @param mat.data : matrix data
 #' @param i : bin index
 #' @param size : size of window to extend
@@ -505,7 +505,7 @@ Get.Diamond.Matrix2 <- function(mat.data, i, size)
     return(new.mat)
 }
     
-#' @fn Convert.Bin.To.Domain
+#' Convert.Bin.To.Domain
 #' @param bins : bin information
 #' @param signal.idx : signal index
 #' @param signal.idx : gap index
@@ -645,7 +645,7 @@ Convert.Bin.To.Domain <- function(bins, signal.idx, gap.idx, pvalues=NULL, pvalu
 }
 
 
-#' @fn Convert.Bin.To.Domain
+#' Convert.Bin.To.Domain
 #' @param bins : bin information
 #' @param signal.idx : signal index
 #' @param signal.idx : gap index

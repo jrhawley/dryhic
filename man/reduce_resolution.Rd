@@ -4,12 +4,14 @@
 \alias{reduce_resolution}
 \title{Reduce resolution (incrrease bin size) of a HiC contact matrix}
 \usage{
-reduce_resolution(mat, newreso)
+reduce_resolution(mat, newreso, oldreso = NA)
 }
 \arguments{
 \item{mat}{HiC contact map matrix}
 
 \item{newreso}{Desired bin size in bp}
+
+\item{oldreso}{Current bin size in bp}
 }
 \value{
 A HiC contact matrix with the desired resolution
