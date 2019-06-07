@@ -57,8 +57,7 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
         cat("#########################################################################\n")
     }
     ptm <- proc.time()
-    for(i in 1:n_bins)
-    {
+    for(i in 1:n_bins) {
         diamond = Get.Diamond.Matrix(mat.data=matrix.data, i=i, size=window.size)
         mean.cf[i] = mean(diamond)
     }
@@ -80,8 +79,7 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     
     proc.regions = Which.process.region(rmv.idx=gap.idx, n_bins=n_bins, min.size=3)
     
-    for( i in 1:nrow(proc.regions))
-    {
+    for( i in 1:nrow(proc.regions)) {
         start = proc.regions[i, "start"]
         end = proc.regions[i, "end"]
         
@@ -296,7 +294,7 @@ Which.Gap.Region2 <- function(matrix.data, w)
     
     for(i in 1:n_bins)
     {
-        if( sum( matrix.data[i, max(1, i-w):min(i+w, n_bins)] ) == 0 ) gap[i]=-0.5
+        if( sum( matrix.data[i, max(1, i-w):min(i+w, n_bins)], na.rm = TRUE ) == 0 ) gap[i]=-0.5
     }
     
     idx = which(gap == -0.5)
