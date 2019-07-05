@@ -73,9 +73,8 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
     }
     
     ptm = proc.time()
-    #gap.idx = Which.Gap.Region(matrix.data=matrix.data)
-    #gap.idx = Which.Gap.Region2(mean.cf)
-    gap.idx = Which.Gap.Region2(matrix.data=matrix.data, window.size)
+
+    gap.idx = Which.Gap.Region(matrix.data=matrix.data, window.size)
     
     proc.regions = Which.process.region(rmv.idx=gap.idx, n_bins=n_bins, min.size=3)
     
@@ -242,52 +241,12 @@ Which.process.region <- function(rmv.idx, n_bins, min.size=3)
     return(proc.regions)
 }
 
+
 #' Which.Gap.Region
-#' @breif version 0.0.1 used
-#' @param matrix.data : n by n matrix
-#' @return gap index
-Which.Gap.Region <- function(matrix.data)
-{
-    n_bins = nrow(matrix.data)
-    gap = rep(0, n_bins)
-    
-    i=1
-    while(i < n_bins)
-    {
-        j = i + 1
-        while( j <= n_bins)
-        {
-            if( sum( matrix.data[i:j, i:j]) == 0 ) {
-                gap[i:j] = -0.5
-                j = j+1    
-                #if(j-i > 1) gap[i:j]=-0.5
-                #j=j+1
-            } else break
-        }
-        
-        i = j    
-    }
-    
-    idx = which(gap == -0.5)
-    return(idx)
-}
-
-#' Which.Gap.Region3
-#' @param matrix.data : n by n matrix
-#' @return gap index
-Which.Gap.Region3 <- function(mean.cf)
-{
-    n_bins = length(mean.cf)
-    gapidx = which(mean.cf==0)
-    
-    return(gapidx)
-}
-
-#' Which.Gap.Region2
 #' @breif version 0.0.2 used
 #' @param matrix.data : n by n matrix
 #' @return gap index
-Which.Gap.Region2 <- function(matrix.data, w)
+Which.Gap.Region <- function(matrix.data, w)
 {
     n_bins = nrow(matrix.data)
     gap = rep(0, n_bins)
