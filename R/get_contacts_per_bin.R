@@ -1,6 +1,6 @@
 #' Retrieve HiC data per genomic bin
 #'
-#' This function takes a HiC-BAM file and creates a nammed \code{vector} with the total number of contact per genomic bin
+#' This function takes a HiC-BAM file and creates a named \code{vector} with the total number of contact per genomic bin
 #' @import magrittr
 #' @importFrom dplyr mutate
 #' @param inbam HiC-BAM file
