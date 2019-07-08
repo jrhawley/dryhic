@@ -13,7 +13,7 @@
 #' @param out_binSignal : string, binSignal file address to write
 #' @param out_ext : string, ext file address to write
 #' @export
-TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, outFile=NULL, statFilter=T, verbose = TRUE)
+TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, outFile=NULL, sparse = FALSE, verbose = TRUE)
 {
     if (verbose) {
         cat("#########################################################################\n")
@@ -93,49 +93,45 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
         cat("Step 2 : Done !!\n")
         
     }
-    if(statFilter)
-    {
-        if (verbose) {
-            cat("#########################################################################\n")
-            cat("Step 3 : Statistical Filtering of false positive TD boundaries\n")
-            cat("#########################################################################\n")
-            cat("-- Matrix Scaling....\n")
-        }
+
+    if (verbose) {
+        cat("#########################################################################\n")
+        cat("Step 3 : Statistical Filtering of false positive TD boundaries\n")
+        cat("#########################################################################\n")
+        cat("-- Matrix Scaling....\n")
+    }
+
+    ptm = proc.time()
+    # SPARSIFY #
+    scale.matrix.data = matrix.data
+    for (i in 1:(2 * window.size)){
+        scale.matrix.data[seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins)] = scale(matrix.data[seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins)])
+    }
     
-        ptm = proc.time()    
-        scale.matrix.data = matrix.data
-        for( i in 1:(2*window.size) )
-        {
-            #diag(scale.matrix.data[, i:n_bins] ) = scale( diag( matrix.data[, i:n_bins] ) )
-            scale.matrix.data[ seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins) ] = scale( matrix.data[ seq(1+(n_bins*i), n_bins*n_bins, 1+n_bins) ] )
-        }
+    if (verbose) cat("-- Compute p-values by Wilcox Ranksum Test\n")
+    for (i in 1:nrow(proc.regions)){
+        start = proc.regions[i, "start"]
+        end = proc.regions[i, "end"]
         
-        if (verbose) cat("-- Compute p-values by Wilcox Ranksum Test\n")
-        for( i in 1:nrow(proc.regions))
-        {
-            start = proc.regions[i, "start"]
-            end = proc.regions[i, "end"]
-            
-            if (verbose) cat(paste("Process Regions from ", start, "to", end), "\n")
-            
-            pvalue[start:end] <- Get.Pvalue(matrix.data=scale.matrix.data[start:end, start:end], size=window.size, scale=1)
-        }
-        if (verbose) {
-            cat("-- Done!\n")
-            cat("-- Filtering False Positives\n")
-        }
+        if (verbose) cat(paste("Process Regions from ", start, "to", end), "\n")
         
-        local.ext[intersect( union(which( local.ext==-1), which(local.ext==-1)), which(pvalue<0.05))] = -2
-        local.ext[which(local.ext==-1)] = 0
-        local.ext[which(local.ext==-2)] = -1
-        if (verbose) cat("-- Done!\n")
-        
-        eltm = proc.time() - ptm
-        if (verbose) {
-            cat(paste("Step 3 Running Time : ", eltm[3]), "\n")
-            cat("Step 3 : Done!\n")
-        }
-    } else pvalue = 0
+        pvalue[start:end] <- Get.Pvalue(matrix.data=scale.matrix.data[start:end, start:end], size=window.size, scale=1)
+    }
+    if (verbose) {
+        cat("-- Done!\n")
+        cat("-- Filtering False Positives\n")
+    }
+    
+    local.ext[intersect( union(which( local.ext==-1), which(local.ext==-1)), which(pvalue<0.05))] = -2
+    local.ext[which(local.ext==-1)] = 0
+    local.ext[which(local.ext==-2)] = -1
+    if (verbose) cat("-- Done!\n")
+    
+    eltm = proc.time() - ptm
+    if (verbose) {
+        cat(paste("Step 3 Running Time : ", eltm[3]), "\n")
+        cat("Step 3 : Done!\n")
+    }
 
     domains = Convert.Bin.To.Domain.TMP(
         bins=bins, 
@@ -191,11 +187,11 @@ TopDom <- function(matrix.data=NULL, bins=NULL, matrix.file=NULL, window.size, o
 #' @return : matrix.
 Get.Diamond.Matrix <- function(mat.data, i, size)
 {
-    n_bins = nrow( mat.data )
+    n_bins = dim(mat.data)[1]
     if(i==n_bins) return(NA)
     
-    lowerbound = max( 1, i-size+1 )
-    upperbound = min( i+size, n_bins)
+    lowerbound = max(1, i - size + 1)
+    upperbound = min(i + size, n_bins)
     
     return( mat.data[lowerbound:i, (i+1):upperbound] )
 }
@@ -248,15 +244,17 @@ Which.process.region <- function(rmv.idx, n_bins, min.size=3)
 #' @return gap index
 Which.Gap.Region <- function(matrix.data, w)
 {
-    n_bins = nrow(matrix.data)
-    gap = rep(0, n_bins)
+    # SPARSIFY #
+    n_bins = dim(matrix.data)[1]
+    gap = rep(FALSE, n_bins)
     
-    for(i in 1:n_bins)
-    {
-        if( sum( matrix.data[i, max(1, i-w):min(i+w, n_bins)], na.rm = TRUE ) == 0 ) gap[i]=-0.5
+    for (i in 1:n_bins) {
+        if (nnzero(matrix.data[i, max(1, i-w):min(i+w, n_bins)], na.counted = FALSE) == 0){
+            gap[i] = TRUE
+        }
     }
     
-    idx = which(gap == -0.5)
+    idx = which(gap)
     return(idx)
 }
 
@@ -395,6 +393,7 @@ Get.Pvalue <- function( matrix.data, size, scale=1 )
     
     for( i in 1:(n_bins-1) )
     {
+        # SPARSIFY #
         dia = as.vector( Get.Diamond.Matrix2(matrix.data, i, size=size) )
         ups = as.vector( Get.Upstream.Triangle(matrix.data, i, size=size) )
         downs = as.vector( Get.Downstream.Triangle(matrix.data, i, size=size) )
@@ -418,9 +417,10 @@ Get.Upstream.Triangle <- function(mat.data, i, size)
 {
     n_bins = nrow(mat.data)
     
-    lower = max(1, i-size)
-    tmp.mat = mat.data[lower:i, lower:i]
-    return( tmp.mat[ upper.tri( tmp.mat, diag=F ) ] )
+    lowerbound = max(1, i-size)
+    n_elements = i - lowerbound + 1
+    linear_idx = which(upper.tri(matrix(NA, n_elements, n_elements), diag = FALSE))
+    return(mat.data[linear_idx])
 }
 
 #' Get.Downstream.Triangle
@@ -434,8 +434,9 @@ Get.Downstream.Triangle <- function(mat.data, i, size)
     if(i==n_bins) return(NA)
     
     upperbound = min(i+size, n_bins)
-    tmp.mat = mat.data[(i+1):upperbound, (i+1):upperbound]
-    return( tmp.mat[ upper.tri( tmp.mat, diag=F ) ] )
+    n_elements = upperbound - i
+    linear_idx = which(upper.tri(matrix(NA, n_elements, n_elements), diag = FALSE))
+    return(mat.data[linear_idx])
 }
 
 #' Get.Diamond.Matrix2
